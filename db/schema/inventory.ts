@@ -9,20 +9,20 @@ import {
 import { appointments } from "./appointments";
 import { users } from "./users";
 
-const categoryEnum = pgEnum("category", [
+export const categoryEnum = pgEnum("category", [
   "consumable",
   "medication",
   "equipment",
 ]);
 
-const transactionEnum = pgEnum("transactionType", [
+export const transactionEnum = pgEnum("transactionType", [
   "restock",
   "usage",
   "adjustment",
   "disposal",
 ]);
 export const inventoryItems = pgTable("inventory_items", {
-  id: uuid("id").primaryKey().notNull().generatedAlwaysAs("gen_random_uuid()"),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull(),
   category: categoryEnum("category").notNull(),
   unit: text("unit"),
@@ -36,7 +36,7 @@ export const inventoryItems = pgTable("inventory_items", {
 });
 
 export const inventoryTransactions = pgTable("inventory_transactions", {
-  id: uuid("id").notNull().generatedAlwaysAs("gen_random_uuid()").primaryKey(),
+  id: uuid("id").notNull().defaultRandom().primaryKey(),
   itemId: uuid("item_id").references(() => inventoryItems.id),
   transactionType: transactionEnum("transaction_type").notNull(),
   quantity: integer("quantity").notNull(),

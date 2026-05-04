@@ -10,7 +10,7 @@ import {
 import { patients } from "./patients";
 import { dentistProfiles, users } from "./users";
 
-const appointmentEnum = pgEnum("appointment_type", [
+export const appointmentEnum = pgEnum("appointment_type", [
   "Fillings",
   "Dental Implants",
   "Oral surgery",
@@ -19,7 +19,7 @@ const appointmentEnum = pgEnum("appointment_type", [
   "Preventive Care",
 ]);
 
-const statusEnum = pgEnum("status", [
+export const appointmentStatusEnum = pgEnum("appointment_status", [
   "pending",
   "confirmed",
   "completed",
@@ -27,14 +27,14 @@ const statusEnum = pgEnum("status", [
   "no_show",
 ]);
 export const appointments = pgTable("appointments", {
-  id: uuid("id").primaryKey().notNull().generatedAlwaysAs("gen_random_uuid"),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
   appointmentCode: text("appointment_code").notNull(),
   patientId: uuid("patient_id").references(() => patients.id),
   dentistId: uuid("dentist_id").references(() => dentistProfiles.id),
   appointmentType: appointmentEnum("appointment_type").notNull(),
   appointmentDate: date("appointment_date").notNull(),
   appointmentTime: time("appointment_time").notNull(),
-  status: statusEnum("status").notNull().default("pending"),
+  status: appointmentStatusEnum("status").notNull().default("pending"),
   notes: text("notes"),
   bookedBy: uuid("booked_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -42,7 +42,7 @@ export const appointments = pgTable("appointments", {
 });
 
 export const appointmentProcedure = pgTable("appointment_procedure", {
-  id: uuid("id").primaryKey().notNull().generatedAlwaysAs("gen_random_uuid()"),
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
   appointmentId: uuid("appointment_id").references(() => appointments.id),
   procedureName: text("procedure_name").notNull(),
   notes: text("notes"),

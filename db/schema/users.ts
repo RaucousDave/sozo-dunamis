@@ -8,10 +8,10 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 
-const roleEnum = pgEnum("role", ["admin", "receptionist", "finance"]);
+export const roleEnum = pgEnum("role", ["admin", "receptionist", "finance"]);
 
 export const users = pgTable("users", {
-  id: uuid("id").primaryKey().generatedAlwaysAs("gen_random_uuid()"),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
@@ -22,7 +22,7 @@ export const users = pgTable("users", {
 });
 
 export const dentistProfiles = pgTable("dentist_profiles", {
-  id: uuid("id").primaryKey().generatedAlwaysAs("gen_random_uuid()"),
+  id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id, {
     onDelete: "cascade",
   }),
