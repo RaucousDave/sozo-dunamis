@@ -2,7 +2,6 @@ import {
   pgEnum,
   pgTable,
   text,
-  uuid,
   date,
   time,
   timestamp,
@@ -27,23 +26,29 @@ export const appointmentStatusEnum = pgEnum("appointment_status", [
   "no_show",
 ]);
 export const appointments = pgTable("appointments", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  id: text("id")
+    .primaryKey()
+    .notNull()
+    .$defaultFn(() => crypto.randomUUID()),
   appointmentCode: text("appointment_code").notNull(),
-  patientId: uuid("patient_id").references(() => patients.id),
-  dentistId: uuid("dentist_id").references(() => dentistProfiles.id),
+  patientId: text("patient_id").references(() => patients.id),
+  dentistId: text("dentist_id").references(() => dentistProfiles.id),
   appointmentType: appointmentEnum("appointment_type").notNull(),
   appointmentDate: date("appointment_date").notNull(),
   appointmentTime: time("appointment_time").notNull(),
   status: appointmentStatusEnum("status").notNull().default("pending"),
   notes: text("notes"),
-  bookedBy: uuid("booked_by").references(() => users.id),
+  bookedBy: text("booked_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const appointmentProcedure = pgTable("appointment_procedure", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  appointmentId: uuid("appointment_id").references(() => appointments.id),
+  id: text("id")
+    .primaryKey()
+    .notNull()
+    .$defaultFn(() => crypto.randomUUID()),
+  appointmentId: text("appointment_id").references(() => appointments.id),
   procedureName: text("procedure_name").notNull(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

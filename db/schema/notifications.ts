@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, uuid, timestamp } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { appointments } from "./appointments";
 
 export const recipientEnum = pgEnum("recipientType", ["patient", "dentist"]);
@@ -17,9 +17,12 @@ export const notificationStatusEnum = pgEnum("notification_status", [
 ]);
 
 export const notifications = pgTable("notifications", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  id: text("id")
+    .primaryKey()
+    .notNull()
+    .$defaultFn(() => crypto.randomUUID()),
   recipientType: recipientEnum("recipient_type").notNull(),
-  appointmentId: uuid("appointment_id").references(() => appointments.id),
+  appointmentId: text("appointment_id").references(() => appointments.id),
   triggerType: triggerEnum("trigger_type").notNull(),
   channel: channelEnum("channel").notNull(),
   scheduledAt: timestamp("scheduled_at"),

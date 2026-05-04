@@ -3,7 +3,6 @@ import {
   pgEnum,
   pgTable,
   text,
-  uuid,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { appointments } from "./appointments";
@@ -22,7 +21,10 @@ export const transactionEnum = pgEnum("transactionType", [
   "disposal",
 ]);
 export const inventoryItems = pgTable("inventory_items", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  id: text("id")
+    .primaryKey()
+    .notNull()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   category: categoryEnum("category").notNull(),
   unit: text("unit"),
@@ -36,12 +38,15 @@ export const inventoryItems = pgTable("inventory_items", {
 });
 
 export const inventoryTransactions = pgTable("inventory_transactions", {
-  id: uuid("id").notNull().defaultRandom().primaryKey(),
-  itemId: uuid("item_id").references(() => inventoryItems.id),
+  id: text("id")
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  itemId: text("item_id").references(() => inventoryItems.id),
   transactionType: transactionEnum("transaction_type").notNull(),
   quantity: integer("quantity").notNull(),
-  referenceId: uuid("reference_id").references(() => appointments.id),
-  performedBy: uuid("performed_by").references(() => users.id),
+  referenceId: text("reference_id").references(() => appointments.id),
+  performedBy: text("performed_by").references(() => users.id),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
