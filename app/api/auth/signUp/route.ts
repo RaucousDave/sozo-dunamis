@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { users } from "@/db";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be more than two characters long"),
@@ -23,7 +24,6 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, role, password, email } = validation.data;
-    const passwordHash = await bcrypt.hash(password, 10);
 
     const [existingUser] = await db
       .select()
@@ -37,18 +37,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [newUser] = await db
-      .insert(users)
-      .values({ name, role, password: passwordHash, email })
-      .returning();
+    await auth.api.signUpEmail({
+      body: { name, password, email },
+    });
+
+    await db.update(users).set({ role }).where(eq(users.email, email));
 
     return NextResponse.json(
       { message: "User created successfully" },
       { status: 200 },
     );
   } catch (err) {
+    console.log("Error: ", err);
     return NextResponse.json(
-      { message: "Something went wrong" },
+      { error: "Something went wrong" },
       { status: 500 },
     );
   }

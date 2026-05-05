@@ -9,25 +9,45 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const roles = [
-  "Administrator",
-  "Dentist / Doctor",
-  "Receptionist",
-  "Dental Nurse",
-  "Lab Technician",
-];
+  { label: "Administrator", value: "administrator" },
+  { label: "Dentist", value: "dentist" },
+  { label: "Receptionist", value: "receptionist" },
+] as const;
 
 export default function LoginPage() {
+  const router = useRouter();
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
-    console.log({ role, email, password });
+    setIsLoading(true);
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setIsLoading(false);
+      toast.error(data.error);
+      return;
+    }
+    setIsLoading(false);
+    toast.success(data.message);
+    router.push("/dashboard");
+    router.refresh()
   };
 
   return (
@@ -64,7 +84,10 @@ export default function LoginPage() {
           {/* Role */}
           <div>
             <label className={labelClassName}>Role</label>
-            <Combobox value={role} onValueChange={(value) => setRole(value ?? "")}>
+            <Combobox
+              value={role}
+              onValueChange={(value) => setRole(value ?? "")}
+            >
               <ComboboxInput
                 className="**:data-[slot=input-group]:w-full **:data-[slot=input-group-input]:h-10 **:data-[slot=input-group-input]:rounded-md **:data-[slot=input-group-input]:border-input **:data-[slot=input-group-input]:bg-background **:data-[slot=input-group-input]:text-sm"
                 placeholder="Select your role"
@@ -74,8 +97,8 @@ export default function LoginPage() {
                 <ComboboxEmpty>No role found.</ComboboxEmpty>
                 <ComboboxList>
                   {roles.map((item) => (
-                    <ComboboxItem key={item} value={item}>
-                      {item}
+                    <ComboboxItem key={item.value} value={item.value}>
+                      {item.label}
                     </ComboboxItem>
                   ))}
                 </ComboboxList>
@@ -132,12 +155,21 @@ export default function LoginPage() {
           </div>
 
           {/* Submit */}
-          <button
-            type="submit"
-            className="mt-2 h-10.5 w-full rounded-md bg-primary text-sm font-medium tracking-[0.2px] text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Sign in to Sozo Dunamis
-          </button>
+          {!isLoading ? (
+            <button
+              type="submit"
+              className="mt-2 h-10.5 w-full rounded-md bg-primary text-sm font-medium tracking-[0.2px] text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Sign in to Sozo Dunamis
+            </button>
+          ) : (
+            <button
+              disabled={isLoading}
+              className={`mt-2 animate-pulse h-10.5 w-full rounded-md bg-secondary text-sm font-medium tracking-[0.2px] text-primary-foreground transition-opacity hover:opacity-90`}
+            >
+              Signing in
+            </button>
+          )}
         </form>
 
         {/* Footer */}
@@ -165,8 +197,8 @@ export default function LoginPage() {
           Every healthy smile starts with great care.
         </h2>
         <p className="relative mb-12 max-w-[300px] text-center text-sm leading-[1.65] text-secondary">
-          Streamline your clinic — appointments, records, billing, and your full
-          team — all in one place.
+          Streamline your clinic - appointments, records, billing, and your full
+          team - all in one place.
         </p>
 
         {/* Stats */}

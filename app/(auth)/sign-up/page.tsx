@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Stethoscope } from "lucide-react";
 import {
   Combobox,
@@ -10,7 +11,6 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
 const roles = [
@@ -22,6 +22,7 @@ const roles = [
 ];
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,8 @@ export default function SignUpPage() {
     if (!role) return;
     if (password !== confirmPassword) return;
 
+    console.log("Sending in password: ", password);
+
     setLoading(true);
 
     const res = await fetch("api/auth/signUp", {
@@ -49,7 +52,7 @@ export default function SignUpPage() {
       }),
     });
 
-    const data= await res.json()
+    const data = await res.json();
     if (!res.ok) {
       toast.error(data.error);
       setLoading(false);
@@ -57,6 +60,8 @@ export default function SignUpPage() {
     }
     setLoading(false);
     toast.success(data.message);
+    router.push("/login");
+    // router.refresh();
   };
 
   return (
