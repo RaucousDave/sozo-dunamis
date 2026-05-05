@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { users } from "@/db";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -25,34 +26,37 @@ export async function POST(req: NextRequest) {
     const { email, password, role } = validation.data;
 
     const [user] = await db.select().from(users).where(eq(users.email, email));
-    
+
     if (!user || user.role !== role) {
       return NextResponse.json({ error: "Invalid details" }, { status: 401 });
     }
 
-    const data = await auth.api
-      .signInEmail({
-        body: { email, password},
-      })
-      .catch((err) => {
-        // Better Auth throws an APIError on invalid credentials
-        if (
-          err?.status === 401 ||
-          err?.body?.code === "INVALID_EMAIL_OR_PASSWORD"
-        ) {
-          return null;
-        }
-        throw err; // re-throw real unexpected errors → caught by outer catch as 500
-      });
-
+    const data = await auth.api.signInEmail({
+      body: { email, password },
+      asResponse: true, // ← tells Better Auth to return a full Response object
+    }).catch((err) => {
+      if (err?.status === 401 || err?.body?.code === "INVALID_EMAIL_OR_PASSWORD") {
+        return null;
+      }
+      throw err;
+    });
+    
     if (!data) {
       return NextResponse.json({ error: "Invalid details" }, { status: 401 });
     }
-
-    return NextResponse.json(
-      { message: "Login successful", data },
+    
+    // Forward the Set-Cookie header from Better Auth to the browser
+    const response = NextResponse.json(
+      { message: "Login successful" },
       { status: 200 },
     );
+    
+    const setCookie = data.headers.get("set-cookie");
+    if (setCookie) {
+      response.headers.set("set-cookie", setCookie);
+    }
+    
+    return response;
   } catch (err) {
     console.error("Login error:", JSON.stringify(err, null, 2));
     console.error("Error message:", err instanceof Error ? err.message : err);

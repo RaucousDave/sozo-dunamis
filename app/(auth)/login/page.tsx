@@ -9,13 +9,13 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const roles = [
-  { label: "Administrator", value: "administrator" },
-  { label: "Dentist", value: "dentist" },
-  { label: "Receptionist", value: "receptionist" },
+  { label: "Administrator", value: "Administrator" },
+  { label: "Dentist", value: "Dentist" },
+  { label: "Receptionist", value: "Receptionist" },
 ] as const;
 
 export default function LoginPage() {
@@ -33,8 +33,9 @@ export default function LoginPage() {
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, email, password }),
+      body: JSON.stringify({ role: role.toLowerCase(), email, password }),
     });
 
     const data = await res.json();
@@ -46,8 +47,8 @@ export default function LoginPage() {
     }
     setIsLoading(false);
     toast.success(data.message);
+    router.refresh();
     router.push("/dashboard");
-    router.refresh()
   };
 
   return (
