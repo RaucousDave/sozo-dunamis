@@ -9,7 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const roleEnum = pgEnum("role", ["admin", "receptionist", "finance"]);
+export const roleEnum = pgEnum("role", ["administrator", "receptionist", "dentist"]);
 
 export const users = pgTable("users", {
   id: text("id")
