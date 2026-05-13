@@ -82,7 +82,12 @@ export default function PatientsPage() {
             registered
           </p>
         </div>
-        <Button render={<Link href="/patients/new" />} size="sm" className="flex">
+        <Button
+          render={<Link href="/patients/new" />}
+          nativeButton={false}
+          size="sm"
+          className="flex"
+        >
           <UserPlus className="mr-2 h-4 w-4" />
           Add Patient
         </Button>
@@ -129,7 +134,12 @@ export default function PatientsPage() {
                     {DATE_FORMATTER.format(new Date(patient.createdAt))}
                   </TableCell>
                   <TableCell>
-                    <Button render={<Link href={`/patients/${patient.id}`} />} variant="ghost" size="sm">
+                    <Button
+                      render={<Link href={`/patients/${patient.id}`} />}
+                      nativeButton={false}
+                      variant="ghost"
+                      size="sm"
+                    >
                       View
                     </Button>
                   </TableCell>

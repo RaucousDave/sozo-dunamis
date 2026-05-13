@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-
+import {toast} from "sonner"
 interface FormState {
   // Patient
   firstName: string;
@@ -53,17 +53,23 @@ export default function NewPatientPage() {
   async function handleSubmit() {
     setLoading(true);
     try {
-      const res = await fetch("api/patients/new", {
+      const res = await fetch("/api/patients/new", {
         method: "POST",
+        credentials: "include",
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(form),
       });
 
       const data = await res.json();
       if (!res.ok) {
         setError(data.error);
+        toast.error(data.error)
+        return
       }
 
+      toast.success(data.message)
       setForm(INITIAL_STATE);
+      router.refresh()
       router.push("/patients");
     } catch (err) {
       console.error(err);
