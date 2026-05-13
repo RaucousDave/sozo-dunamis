@@ -31,24 +31,29 @@ export default function LoginPage() {
     if (!role) return;
     setIsLoading(true);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: role.toLowerCase(), email, password }),
-    });
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: role.toLowerCase(), email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
+      if (!res.ok) {
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success(data.message);
+      router.refresh();
+      router.push("/");
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
       setIsLoading(false);
-      toast.error(data.error);
-      return;
     }
-    setIsLoading(false);
-    toast.success(data.message);
-    router.refresh();
-    router.push("/dashboard");
   };
 
   return (
