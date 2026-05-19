@@ -31,6 +31,7 @@ export default function LoginPage() {
     if (!role) return;
     setIsLoading(true);
 
+<<<<<<< Updated upstream
     try {
       const res = await fetch("/api/login", {
         method: "POST",
@@ -38,6 +39,14 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: role.toLowerCase(), email, password }),
       });
+=======
+    const res = await fetch("/api/login", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: role.toLowerCase(), email, password }),
+    });
+>>>>>>> Stashed changes
 
       const data = await res.json();
 
@@ -54,12 +63,19 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+<<<<<<< Updated upstream
+=======
+    setIsLoading(false);
+    toast.success(data.message);
+    router.refresh();
+    router.push("/");
+>>>>>>> Stashed changes
   };
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-foreground">
       {/* ── Left: Form panel ── */}
-      <div className="flex basis-[480px] flex-col justify-center border-r border-border bg-card px-14 py-12">
+      <div className="flex basis-120 flex-col justify-center border-r border-border bg-card px-14 py-12">
         {/* Brand */}
         <div className="mb-12 flex items-center gap-2.5">
           <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-md bg-foreground text-card">
