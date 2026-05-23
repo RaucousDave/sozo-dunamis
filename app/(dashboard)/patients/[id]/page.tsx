@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   CalendarDays,
   Mail,
+  Trash,
   MapPin,
   Pencil,
   Phone,
@@ -30,6 +31,17 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 type Gender = "male" | "female";
 
 interface PatientRecord {
@@ -133,6 +145,7 @@ export default function PatientDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const patientId = typeof params?.id === "string" ? params.id : "";
+  console.log("Raw Params: ", params);
   const missingPatientId = !patientId;
 
   const [patient, setPatient] = useState<PatientRecord | null>(null);
@@ -140,10 +153,31 @@ export default function PatientDetailPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const deletePatient = async () => {
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/patients/${patientId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        toast.error("");
+        throw new Error("Failed to delete patient");
+      }
+      router.push("/patients");
+    } catch (error) {
+      console.error("Something went wrong: ", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!patientId) return;
+
+    console.log("Patient Id: ", patientId);
 
     let isMounted = true;
 
@@ -152,11 +186,13 @@ export default function PatientDetailPage() {
       setFetchError(null);
 
       try {
+        console.log("Fetching patient data....");
         const response = await fetch(`/api/patients/${patientId}`, {
           method: "GET",
           cache: "no-store",
         });
 
+        console.log("Fetch response: ", response);
         const data: PatientResponse = await response.json();
 
         if (!response.ok || !data.patient) {
@@ -276,7 +312,8 @@ export default function PatientDetailPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             {missingPatientId
               ? "Patient ID is missing."
-              : fetchError || "The requested patient record could not be loaded."}
+              : fetchError ||
+                "The requested patient record could not be loaded."}
           </p>
         </div>
       </div>
@@ -335,7 +372,11 @@ export default function PatientDetailPage() {
         <div className="flex items-center gap-2">
           {isEditing ? (
             <>
-              <Button variant="ghost" onClick={handleCancel} disabled={isSaving}>
+              <Button
+                variant="ghost"
+                onClick={handleCancel}
+                disabled={isSaving}
+              >
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
@@ -345,10 +386,41 @@ export default function PatientDetailPage() {
               </Button>
             </>
           ) : (
-            <Button variant="outline" onClick={() => setIsEditing(true)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit patient
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit patient
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button className="bg-red-700 text-white" variant="outline">
+                    <Trash className="mr-2 h-4 w-4" />
+                    Delete patient
+                  </Button>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete this patient's data
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-gray-100 text-red-500 hover:bg-red-600 hover:text-white transition ease-linear duration-300"
+                        onClick={deletePatient}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialogTrigger>
+              </AlertDialog>
+            </>
           )}
         </div>
       </div>
@@ -356,7 +428,9 @@ export default function PatientDetailPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_320px]">
         <div className="space-y-6 rounded-md border border-border bg-card p-6">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">Patient details</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              Patient details
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Review and update the core patient record fields returned by the
               current API route.
@@ -396,8 +470,8 @@ export default function PatientDetailPage() {
               {isEditing ? (
                 <Select
                   value={draft.gender}
-                  onValueChange={(value: Gender) =>
-                    handleDraftChange("gender", value)
+                  onValueChange={(value: Gender | null) =>
+                    handleDraftChange("gender", value as Gender)
                   }
                 >
                   <SelectTrigger>
@@ -454,7 +528,9 @@ export default function PatientDetailPage() {
 
         <div className="space-y-6">
           <div className="rounded-md border border-border bg-card p-6">
-            <h2 className="text-sm font-semibold text-foreground">Record summary</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              Record summary
+            </h2>
             <div className="mt-4 space-y-4 text-sm">
               <div className="flex items-start gap-3">
                 <CalendarDays className="mt-0.5 h-4 w-4 text-muted-foreground" />
@@ -470,7 +546,9 @@ export default function PatientDetailPage() {
                 <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-muted-foreground">Address</p>
-                  <p className="font-medium text-foreground">{patient.address}</p>
+                  <p className="font-medium text-foreground">
+                    {patient.address}
+                  </p>
                 </div>
               </div>
 
@@ -497,7 +575,9 @@ export default function PatientDetailPage() {
           </div>
 
           <div className="rounded-md border border-border bg-card p-6">
-            <h2 className="text-sm font-semibold text-foreground">Integration notes</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              Integration notes
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Save submits a `PATCH` request to{" "}
               <code>/api/patients/{patient.id}</code> with the editable patient

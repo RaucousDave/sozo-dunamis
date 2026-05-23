@@ -4,14 +4,17 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params;
+    const resolvedParams = await params;
+    console.log("Resolved params: ", resolvedParams);
+    const id = (await params).id;
 
     if (!id || typeof id !== "string") {
       return NextResponse.json(
-        { error: "Patient ID is invalid" },
+        { error: "Patient does not exist" },
         { status: 400 },
       );
     }
@@ -31,7 +34,8 @@ export async function GET(
       { message: "Patient data fetched successfully", patient: existing },
       { status: 200 },
     );
-  } catch {
+  } catch (error) {
+    console.log("[GET api/patients/:id]: ", error);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 400 },
@@ -95,6 +99,42 @@ export async function PATCH(
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 400 },
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ error: "Id is invalid" }, { status: 400 });
+    }
+
+    const [existingPatient] = await db
+      .select()
+      .from(patients)
+      .where(eq(patients.id, id));
+    if (!existingPatient) {
+      return NextResponse.json(
+        { error: "Patient does not exist" },
+        { status: 400 },
+      );
+    }
+
+    await db.delete(patients).where(eq(patients.id, id));
+    return NextResponse.json(
+      { message: "Patient Deleted successfully" },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("DELETE [api/patients/:id] ", error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 },
     );
   }
 }

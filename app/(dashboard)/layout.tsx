@@ -62,15 +62,15 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Core",
     items: [
-      { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
+      { href: "/", icon: LayoutDashboard, label: "Overview" },
       {
-        href: "/dashboard/appointments",
+        href: "/appointments",
         icon: CalendarDays,
         label: "Appointments",
       },
-      { href: "/dashboard/patients", icon: Users, label: "Patients" },
+      { href: "/patients", icon: Users, label: "Patients" },
       {
-        href: "/dashboard/clinical",
+        href: "/clinical",
         icon: Stethoscope,
         label: "Clinical Records",
       },
@@ -79,43 +79,39 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Operations",
     items: [
+    
+      { href: "/inventory", icon: Package, label: "Inventory" },
+      { href: "/lab", icon: FlaskConical, label: "Lab Orders" },
       {
-        href: "/dashboard/billing",
-        icon: CreditCard,
-        label: "Billing & Invoices",
-      },
-      { href: "/dashboard/inventory", icon: Package, label: "Inventory" },
-      { href: "/dashboard/lab", icon: FlaskConical, label: "Lab Orders" },
-      {
-        href: "/dashboard/prescriptions",
+        href: "/prescriptions",
         icon: ClipboardList,
         label: "Prescriptions",
       },
-      { href: "/dashboard/reports", icon: FileText, label: "Reports" },
+      { href: "/reports", icon: FileText, label: "Reports" },
     ],
   },
   {
     label: "Staff",
     items: [
-      { href: "/dashboard/staff", icon: UserCog, label: "Staff Management" },
+      { href: "/staff", icon: UserCog, label: "Staff Management" },
       {
-        href: "/dashboard/messages",
+        href: "/messages",
         icon: MessageSquare,
         label: "Messages",
         badge: 4,
       },
-      { href: "/dashboard/activity", icon: Activity, label: "Activity Log" },
+      { href: "/activity", icon: Activity, label: "Activity Log" },
     ],
   },
   {
     label: "System",
     items: [
       {
-        href: "/dashboard/roles",
+        href: "/roles",
         icon: ShieldCheck,
         label: "Roles & Permissions",
       },
-      { href: "/dashboard/settings", icon: Settings, label: "Settings" },
+      { href: "/settings", icon: Settings, label: "Settings" },
     ],
   },
 ];
@@ -324,7 +320,7 @@ function Sidebar({
 
       {!collapsed ? (
         <div className="border-t border-sidebar-border p-3">
-          <ProfileSummary />
+          {/*<ProfileSummary />*/}
         </div>
       ) : null}
 
@@ -371,16 +367,19 @@ function MobileNavigation({ pathname }: { pathname: string }) {
 }
 
 function Topbar({ mobileMenuTrigger }: { mobileMenuTrigger: ReactNode }) {
-  const pathname = usePathname();
-  const segment = pathname.split("/").filter(Boolean).pop() ?? "dashboard";
-  const pageTitle = segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+  // const pathname = usePathname();
+  // const segment = pathname.split("/").filter(Boolean).pop() ?? "dashboard";
+  // const pageTitle =
+  //   segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-6">
       <div className="flex items-center gap-3">
         <div className="md:hidden">{mobileMenuTrigger}</div>
         <div>
-          <h1 className="text-base font-semibold text-foreground">{pageTitle}</h1>
+          {/*<h1 className="text-base font-semibold text-foreground">
+            {pageTitle}
+          </h1>*/}
           <p className="hidden text-xs text-muted-foreground sm:block">
             {DATE_FORMATTER.format(new Date())}
           </p>
@@ -392,7 +391,11 @@ function Topbar({ mobileMenuTrigger }: { mobileMenuTrigger: ReactNode }) {
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative h-9 w-9"
+                >
                   <Bell className="h-4 w-4" />
                   <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
                 </Button>
@@ -437,13 +440,15 @@ function Topbar({ mobileMenuTrigger }: { mobileMenuTrigger: ReactNode }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              render={<Link href="/dashboard/settings" className="cursor-pointer" />}
+              render={
+                <Link href="/dashboard/settings" className="cursor-pointer" />
+              }
             >
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuItem
-              render={<Link href="/dashboard/activity" className="cursor-pointer" />}
+              render={<Link href="/activity" className="cursor-pointer" />}
             >
               <Activity className="mr-2 h-4 w-4" />
               Activity Log
@@ -460,11 +465,7 @@ function Topbar({ mobileMenuTrigger }: { mobileMenuTrigger: ReactNode }) {
   );
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
 

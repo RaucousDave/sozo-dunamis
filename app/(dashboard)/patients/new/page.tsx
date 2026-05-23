@@ -67,6 +67,7 @@ export default function NewPatientPage() {
         return
       }
 
+      console.log("POST: [/api/patients/new] ", data.message)
       toast.success(data.message)
       setForm(INITIAL_STATE);
       router.refresh()
@@ -79,7 +80,7 @@ export default function NewPatientPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-4">
       <div>
         <h2 className="text-xl font-bold text-foreground">Register Patient</h2>
         <p className="text-sm text-muted-foreground">

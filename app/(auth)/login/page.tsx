@@ -9,7 +9,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const roles = [
@@ -48,13 +48,13 @@ export default function LoginPage() {
     setIsLoading(false);
     toast.success(data.message);
     router.refresh();
-    router.push("/dashboard");
+    router.push("/");
   };
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-foreground">
       {/* ── Left: Form panel ── */}
-      <div className="flex basis-[480px] flex-col justify-center border-r border-border bg-card px-14 py-12">
+      <div className="flex basis-120 flex-col justify-center border-r border-border bg-card px-14 py-12">
         {/* Brand */}
         <div className="mb-12 flex items-center gap-2.5">
           <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-md bg-foreground text-card">
@@ -185,19 +185,19 @@ export default function LoginPage() {
       {/* ── Right: Visual panel ── */}
       <div className="relative flex flex-1 bg-primary flex-col items-center justify-center overflow-hidden p-12">
         {/* Decorative rings */}
-        <div className="pointer-events-none absolute h-[360px] w-[360px] rounded-full border border-border opacity-60" />
-        <div className="pointer-events-none absolute h-[520px] w-[520px] rounded-full border border-border opacity-45" />
-        <div className="pointer-events-none absolute h-[680px] w-[680px] rounded-full border border-border opacity-30" />
+        <div className="pointer-events-none absolute h-90 w-90 rounded-full border border-border opacity-60" />
+        <div className="pointer-events-none absolute h-130 w-130 rounded-full border border-border opacity-45" />
+        <div className="pointer-events-none absolute h-170 w-170 rounded-full border border-border opacity-30" />
 
         <div className="relative mb-10 flex h-24 w-24 items-center justify-center rounded-full border border-border bg-card">
           <Stethoscope className="h-11 w-11 text-foreground/85" />
         </div>
 
         {/* Copy */}
-        <h2 className="relative mb-4 max-w-[360px] text-center text-[32px] font-bold leading-[1.2] tracking-[-0.8px] text-secondary">
+        <h2 className="relative mb-4 max-w-90 text-center text-[32px] font-bold leading-[1.2] tracking-[-0.8px] text-secondary">
           Every healthy smile starts with great care.
         </h2>
-        <p className="relative mb-12 max-w-[300px] text-center text-sm leading-[1.65] text-secondary">
+        <p className="relative mb-12 max-w-75 text-center text-sm leading-[1.65] text-secondary">
           Streamline your clinic - appointments, records, billing, and your full
           team - all in one place.
         </p>

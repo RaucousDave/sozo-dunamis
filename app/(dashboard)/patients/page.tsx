@@ -12,40 +12,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { UserPlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface Patient {
-    id: string
-    patientCode: string
-    lastName: string
-    firstName: string
-    dateOfBirth: string
-    address: string
-    phoneNumber: string
-    gender: string
-    createdAt: string | Date
+  id: string;
+  patientCode: string;
+  lastName: string;
+  firstName: string;
+  dateOfBirth: string;
+  address: string;
+  phoneNumber: string;
+  gender: string;
+  createdAt: string | Date;
 }
-
-// Replace with your actual db fetch
-const MOCK_PATIENTS = [
-  {
-    id: "1",
-    patientCode: "PAT-4823",
-    firstName: "Emeka",
-    lastName: "Okonkwo",
-    phoneNumber: "08012345678",
-    gender: "male",
-    createdAt: new Date("2024-01-15"),
-  },
-  {
-    id: "2",
-    patientCode: "PAT-1047",
-    firstName: "Ngozi",
-    lastName: "Adeyemi",
-    phoneNumber: "08098765432",
-    gender: "female",
-    createdAt: new Date("2024-02-20"),
-  },
-];
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-NG", {
   dateStyle: "medium",
@@ -53,24 +32,50 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-NG", {
 });
 
 export default function PatientsPage() {
-  // const patients = await db.select().from(patients).orderBy(desc(patients.createdAt));
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [searchedName, setSearchedName] = useState<string>("");
   const [error, setError] = useState<string>();
 
-  const fetchPatients = async () => {
-    const res = await fetch("/api/patients", {
-      method: "GET",
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error);
-    }
-    setPatients(data.patients);
+  const filteredPatients = patients.filter((patient) => {
+    const query = searchedName.toLowerCase();
+
+    if (!query) return true;
+
+    return(
+      patient.lastName.includes(query) ||
+      patient.firstName.includes(query)
+    )
+  });
+  const handleSearchPatients = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchedName(e.target.value);
+    console.log("Filtered patients: ", filteredPatients)
   };
 
+  const handleSearch = (name: string) => {
+    const patientMatch = patients.filter((patient) => {
+      return patient.lastName === name || patient.firstName === name;
+    });
+    console.log(patientMatch);
+    setSearchedName("");
+  };
   useEffect(() => {
-    fetchPatients()
-  }, [])
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/patients", {
+          method: "GET",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error);
+        }
+        setPatients(data.patients);
+      } catch (error) {
+        console.error("Something went wrong: ", error);
+      }
+    };
+
+    fetchData();
+  }, [error]);
 
   return (
     <div className="space-y-4">
@@ -85,7 +90,7 @@ export default function PatientsPage() {
         <Button
           render={<Link href="/patients/new" />}
           nativeButton={false}
-          size="sm"
+          size="default"
           className="flex"
         >
           <UserPlus className="mr-2 h-4 w-4" />
@@ -93,10 +98,28 @@ export default function PatientsPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border border-border">
+      <div className="w-full my-6 space-x-4">
+        <Input
+          className="px-6 py-1 w-9/10 rounded-full"
+          onChange={handleSearchPatients}
+          value={searchedName}
+          placeholder="Enter patient name"
+        />
+        <Button
+          onClick={() => {
+            handleSearch(searchedName);
+          }}
+          size="default"
+          variant="outline"
+          className="px-4 "
+        >
+          Search
+        </Button>
+      </div>
+      <div className="rounded-md pt-2 border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent">
+            <TableRow>
               <TableHead>Code</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Phone</TableHead>
@@ -116,7 +139,7 @@ export default function PatientsPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              patients.map((patient) => (
+              filteredPatients.map((patient) => (
                 <TableRow key={patient.id}>
                   <TableCell className="font-mono text-xs text-muted-foreground">
                     {patient.patientCode}
@@ -135,9 +158,9 @@ export default function PatientsPage() {
                   </TableCell>
                   <TableCell>
                     <Button
+                      variant="ghost"
                       render={<Link href={`/patients/${patient.id}`} />}
                       nativeButton={false}
-                      variant="ghost"
                       size="sm"
                     >
                       View
