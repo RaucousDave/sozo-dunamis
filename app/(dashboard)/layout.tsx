@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -15,17 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {
   Activity,
-  Bell,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -35,7 +24,6 @@ import {
   FlaskConical,
   LayoutDashboard,
   LogOut,
-  Menu,
   MessageSquare,
   Package,
   Settings,
@@ -116,69 +104,6 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-const CLINIC_BRAND = {
-  name: "Sozo Dunamis",
-  subtitle: "Dental Clinic",
-};
-
-const DOCTOR_PROFILE = {
-  initials: "DR",
-  name: "Dr. Rejoice Okon",
-  role: "Chief Dentist",
-  avatarSrc: "/doctor-avatar.jpg",
-};
-
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-NG", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "Africa/Lagos",
-});
-
-function BrandMark() {
-  return (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-sm">
-      <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
-    </div>
-  );
-}
-
-function BrandText() {
-  return (
-    <div className="min-w-0">
-      <p className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
-        {CLINIC_BRAND.name}
-      </p>
-      <p className="truncate text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/50">
-        {CLINIC_BRAND.subtitle}
-      </p>
-    </div>
-  );
-}
-
-function ProfileSummary() {
-  return (
-    <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent px-3 py-2.5">
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarImage src={DOCTOR_PROFILE.avatarSrc} />
-        <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
-          {DOCTOR_PROFILE.initials}
-        </AvatarFallback>
-      </Avatar>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold text-sidebar-foreground">
-          {DOCTOR_PROFILE.name}
-        </p>
-        <p className="truncate text-[10px] text-sidebar-foreground/50">
-          {DOCTOR_PROFILE.role}
-        </p>
-      </div>
-      <div className="h-2 w-2 shrink-0 rounded-full bg-primary" />
-    </div>
-  );
-}
-
 function NavItem({
   item,
   collapsed,
@@ -201,10 +126,6 @@ function NavItem({
         collapsed && "justify-center px-2",
       )}
     >
-      {active && !collapsed ? (
-        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary-foreground/60" />
-      ) : null}
-
       <Icon
         className={cn(
           "shrink-0 transition-transform duration-200",
@@ -233,9 +154,7 @@ function NavItem({
     </Link>
   );
 
-  if (!collapsed) {
-    return content;
-  }
+  if (!collapsed) return content;
 
   return (
     <Tooltip>
@@ -252,13 +171,7 @@ function NavItem({
   );
 }
 
-function SidebarNav({
-  collapsed,
-  pathname,
-}: {
-  collapsed: boolean;
-  pathname: string;
-}) {
+function SidebarNav({ collapsed, pathname }: { collapsed: boolean; pathname: string }) {
   return (
     <nav className="flex-1 overflow-y-auto px-2 py-4">
       <TooltipProvider delay={0}>
@@ -275,11 +188,7 @@ function SidebarNav({
             <ul className="space-y-0.5">
               {group.items.map((item) => (
                 <li key={item.href}>
-                  <NavItem
-                    item={item}
-                    collapsed={collapsed}
-                    active={pathname === item.href}
-                  />
+                  <NavItem item={item} collapsed={collapsed} active={pathname === item.href} />
                 </li>
               ))}
             </ul>
@@ -290,13 +199,7 @@ function SidebarNav({
   );
 }
 
-function Sidebar({
-  collapsed,
-  onToggle,
-}: {
-  collapsed: boolean;
-  onToggle: () => void;
-}) {
+function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -312,17 +215,22 @@ function Sidebar({
           collapsed ? "justify-center px-2" : "gap-3",
         )}
       >
-        <BrandMark />
-        {!collapsed ? <BrandText /> : null}
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-sm">
+          <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+        </div>
+        {!collapsed ? (
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
+              Sozo Dunamis
+            </p>
+            <p className="truncate text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/50">
+              Dental Clinic
+            </p>
+          </div>
+        ) : null}
       </div>
 
       <SidebarNav collapsed={collapsed} pathname={pathname} />
-
-      {!collapsed ? (
-        <div className="border-t border-sidebar-border p-3">
-          {/*<ProfileSummary />*/}
-        </div>
-      ) : null}
 
       <Button
         variant="outline"
@@ -340,149 +248,35 @@ function Sidebar({
   );
 }
 
-function MobileNavigation({ pathname }: { pathname: string }) {
-  return (
-    <Sheet>
-      <SheetTrigger
-        render={
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <Menu className="h-5 w-5" />
-          </Button>
-        }
-      />
-      <SheetContent side="left" className="w-64 p-0">
-        <div className="flex h-full flex-col bg-sidebar">
-          <div className="flex items-center gap-3 border-b border-sidebar-border px-4 py-4">
-            <BrandMark />
-            <BrandText />
-          </div>
-          <SidebarNav collapsed={false} pathname={pathname} />
-          <div className="border-t border-sidebar-border p-3">
-            <ProfileSummary />
-          </div>
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-}
-
-function Topbar({ mobileMenuTrigger }: { mobileMenuTrigger: ReactNode }) {
-  // const pathname = usePathname();
-  // const segment = pathname.split("/").filter(Boolean).pop() ?? "dashboard";
-  // const pageTitle =
-  //   segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+function Topbar() {
+  const pathname = usePathname();
+  const segment = pathname.split("/").filter(Boolean).pop() ?? "overview";
+  const pageTitle =
+    segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-6">
-      <div className="flex items-center gap-3">
-        <div className="md:hidden">{mobileMenuTrigger}</div>
-        <div>
-          {/*<h1 className="text-base font-semibold text-foreground">
-            {pageTitle}
-          </h1>*/}
-          <p className="hidden text-xs text-muted-foreground sm:block">
-            {DATE_FORMATTER.format(new Date())}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-9 w-9"
-                >
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
-                </Button>
-              }
-            />
-            <TooltipContent>Notifications</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <Separator orientation="vertical" className="mx-1 h-6" />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                className="flex h-9 items-center gap-2.5 rounded-lg px-2 hover:bg-accent"
-              >
-                <Avatar className="h-7 w-7">
-                  <AvatarImage src={DOCTOR_PROFILE.avatarSrc} />
-                  <AvatarFallback className="bg-primary text-[10px] font-bold text-primary-foreground">
-                    {DOCTOR_PROFILE.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden text-left sm:block">
-                  <p className="text-xs font-semibold leading-none text-foreground">
-                    {DOCTOR_PROFILE.name}
-                  </p>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    {DOCTOR_PROFILE.role}
-                  </p>
-                </div>
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-              Signed in as
-            </DropdownMenuLabel>
-            <DropdownMenuLabel className="-mt-1 text-sm">
-              {DOCTOR_PROFILE.name}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              render={
-                <Link href="/dashboard/settings" className="cursor-pointer" />
-              }
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              render={<Link href="/activity" className="cursor-pointer" />}
-            >
-              <Activity className="mr-2 h-4 w-4" />
-              Activity Log
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive focus:text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4 md:px-6">
+      <h1 className="text-sm font-semibold text-foreground">{pageTitle}</h1>
+      <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </Button>
     </header>
   );
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-  const pathname = usePathname();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <div className="hidden md:flex">
-        <Sidebar
-          collapsed={collapsed}
-          onToggle={() => setCollapsed((current) => !current)}
-        />
+        <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
       </div>
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar mobileMenuTrigger={<MobileNavigation pathname={pathname} />} />
-        <main className="flex-1 overflow-y-auto">
-          <div className="h-full p-4 md:p-6">{children}</div>
-        </main>
+        <Topbar />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

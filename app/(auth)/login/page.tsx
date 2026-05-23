@@ -31,24 +31,30 @@ export default function LoginPage() {
     if (!role) return;
     setIsLoading(true);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: role.toLowerCase(), email, password }),
-    });
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: role.toLowerCase(), email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
+      if (!res.ok) {
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success(data.message);
+      router.refresh();
+      router.push("/");
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
       setIsLoading(false);
-      toast.error(data.error);
-      return;
     }
-    setIsLoading(false);
-    toast.success(data.message);
-    router.refresh();
-    router.push("/");
+
   };
 
   return (
@@ -202,26 +208,6 @@ export default function LoginPage() {
           team - all in one place.
         </p>
 
-        {/* Stats */}
-        {/* <div className="relative flex gap-4">
-          {[
-            { num: "248", label: "Patients this month" },
-            { num: "12", label: "Today's appointments" },
-            { num: "98%", label: "Satisfaction rate" },
-          ].map(({ num, label }) => (
-            <div
-              key={label}
-              className="min-w-[100px] rounded-lg border border-border bg-card px-[18px] py-[14px] text-center"
-            >
-              <div className="text-[22px] font-bold tracking-[-0.5px] text-foreground">
-                {num}
-              </div>
-              <div className="mt-0.5 text-[11px] leading-[1.4] text-muted-foreground">
-                {label}
-              </div>
-            </div>
-          ))}
-        </div> */}
       </div>
     </div>
   );

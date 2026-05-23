@@ -405,7 +405,7 @@ export default function PatientDetailPage() {
                       </AlertDialogTitle>
                       <AlertDialogDescription>
                         This action cannot be undone. This will permanently
-                        delete this patient's data
+                        delete this patient`&apos;`s data
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -572,18 +572,6 @@ export default function PatientDetailPage() {
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="rounded-md border border-border bg-card p-6">
-            <h2 className="text-sm font-semibold text-foreground">
-              Integration notes
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Save submits a `PATCH` request to{" "}
-              <code>/api/patients/{patient.id}</code> with the editable patient
-              fields. Once you add that handler server-side, this screen should
-              work without more client changes.
-            </p>
           </div>
         </div>
       </div>
